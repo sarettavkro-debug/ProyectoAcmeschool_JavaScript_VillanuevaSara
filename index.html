@@ -171,6 +171,70 @@
     </div>
     </section>
 
-    
+    <section id="view-users" class="screen is-hidden" aria-labelledby="users-title">
+    <div class="frame-card admin-card">
+        <h1 id="users-title" class="admin-title">Gestión de usuarios</h1>
+
+        <div class="lavender-panel">
+        <h2 id="user-form-heading" class="panel-subtitle">Nuevo usuario</h2>
+        <form id="user-crud-form" class="grid-3">
+            <div class="field-group">
+            <label for="user-id">Número de identificación</label>
+            <input id="user-id" name="id" type="text" placeholder="1020304050" required />
+            </div>
+
+            <div class="field-group">
+            <label for="user-fullname">Nombre completo</label>
+            <input id="user-fullname" name="fullName" type="text" placeholder="Ana María Gómez" required />
+            </div>
+
+            <div class="field-group">
+            <label for="user-email">Email</label>
+            <input id="user-email" name="email" type="email" placeholder="ana@acmeschool.edu" required />
+            </div>
+
+            <div class="field-group">
+            <label for="user-phone">Teléfono</label>
+            <input id="user-phone" name="phone" type="text" placeholder="+57 300 123 4567" required />
+            </div>
+
+            <div class="field-group">
+            <label for="user-role">Cargo</label>
+            <select id="user-role" name="role" required>
+                <option value="Docente">Docente</option>
+                <option value="Administrativo">Administrativo</option>
+            </select>
+            </div>
+
+            <div class="field-group">
+            <label for="user-password">Contraseña</label>
+            <input id="user-password" name="password" type="password" placeholder="••••••••" required />
+            </div>
+
+            <div class="form-actions-row span-all">
+            <button type="submit" class="btn-purple">Guardar usuario</button>
+        <button type="button" id="reset-user-form-btn" class="btn-outline-purple">Cancelar / Limpiar</button>
+            </div>
+        </form>
+        </div>
+
+        <h2 class="section-label">Usuarios registrados</h2>
+        <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Identificación</th>
+                <th>Nombre completo</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Cargo</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="users-table-body"></tbody>
+        </table>
+        </div>
+    </div>
+    </section>
 
 
