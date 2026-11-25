@@ -68,7 +68,7 @@
     <div class="frame-card">
         <p class="brand-inline">ACME SCHOOL</p>
         <p class="lead-muted">Estas a punto de empezar el exámen:</p>
-        <h1 id="register-title" class="selected-exam-title"></h1>
+        <h2 id="register-title" class="selected-exam-title"></h2>
         <div id="register-meta" class="meta-inline"></div>
 
         <div class="mint-box">
@@ -104,3 +104,26 @@
         </div>
     </div>
     </section>
+
+    <section id="view-exam-runner" class="screen is-hidden" aria-labelledby="runner-exam-title">
+        <div class="frame-card runner-card">
+        <div class="runner-banner">
+        <div>
+            <h2 id="runner-exam-title" class="runner-title"></h2>
+            <div id="runner-badges" class="runner-badges"></div>
+        </div>
+        <div id="runner-timer-slot"></div>
+        </div>
+
+        <form id="runner-questions-form" class="runner-body">
+        <div id="runner-questions-list" class="questions-stack"></div>
+
+        <div class="runner-footer">
+            <p id="runner-helper-note" class="helper-note"></p>
+            <button type="submit" id="finish-exam-btn" class="btn-purple">Terminar</button>
+        </div>
+        </form>
+    </div>
+    </section>
+
+
