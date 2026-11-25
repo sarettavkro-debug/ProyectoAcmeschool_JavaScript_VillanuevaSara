@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Acme School — Plataforma de Exámenes</title>
+<link rel="stylesheet" href="./CSS/styles.css" />
+</head>
+<body>
+<header class="topbar">
+    <div class="container topbar-inner">
+    <a href="#catalog" class="brand" data-view="catalog">ACME SCHOOL</a>
+
+    <nav class="topbar-nav" aria-label="Navegación principal">
+        <button type="button" class="nav-link is-active" data-view="catalog">
+        Catálogo de exámenes
+        </button>
+        <button type="button" class="nav-link" data-view="users" data-auth-only="true">
+        Usuarios
+        </button>
+        <button type="button" class="nav-link" data-view="exams" data-auth-only="true">
+        Exámenes
+        </button>
+    </nav>
+
+    <div class="topbar-actions">
+        <span id="session-badge" class="session-badge is-hidden"></span>
+        <button type="button" id="open-login-btn" class="btn-outline-header">
+        Acceso personal administrativo
+        </button>
+        <button type="button" id="logout-btn" class="btn-outline-header is-hidden">
+        Cerrar sesión
+        </button>
+    </div>
+    </div>
+</header>
