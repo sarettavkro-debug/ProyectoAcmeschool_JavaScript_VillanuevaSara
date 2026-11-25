@@ -1,69 +1,157 @@
 const STORAGE_KEY = "acme_school_db_v1";
 
 const initialData = {
-
-users: [
+    users: [
     {
-        "id": "1020304050",
-        "fullName": "Ana María Gómez",
-        "email": "ana@acmeschool.edu",
-        "phone": "3001234567",
-        "role": "Docente",
-        "password": "Olamundo22"
-    },
-
-    {
-        "id": "1098765432",
-        "fullName": "Carlos Ruiz Pérez",
-        "email": "carlos@acmeschool.edu",
-        "phone": "3119876543",
-        "role": "Administrativo",
-        "password": "Olamundo33"
-    },
-
-    {
-        "id": "1055566677",
-        "fullName": "Lucía Fernández",
-        "email": "lucia@acmeschool.edu",
-        "phone": "3204567890",
-        "role": "Docente",
-        "password": "Olamundo44"
-    },
-
-    {
-        "id": "1012345678",
-        "fullName": "Jorge Herrera",
-        "email": "jorge@acmeschool.edu",
-        "phone": "3152223344",
-        "role": "Docente",
-        "password": "Olamundo55"
+        id: "1020304050",
+        fullName: "Sara Caro",
+        email: "admin@acmeschool.edu.co",
+        phone: "+57 300 123 4567",
+        role: "Administrativo",
+        password: "Acme2026!"
     }
-],
-exams: [
+    ],
+    exams: [
     {
-        id: "exam-101",
-        code: "MAT-101",
-        title: "Evaluación Diagnóstica de Matemáticas",
-        durationMinutes: 15,
+        id: "exam-mat",
+        code: "102030",
+        title: "Matemáticas básicas",
+        durationMinutes: 45,
         passPercentage: 70,
-        description: "Conceptos básicos de álgebra y resolución de problemas.",
+        description: "Operaciones fundamentales, fracciones y razonamiento numérico.",
         questions: [
         {
-            id: "q-1",
-            text: "¿Cuál es el resultado de 2x + 4 = 12?",
+            id: "q-mat-1",
+            text: "¿Cuál es el resultado de 12 × 8?",
             options: [
-            { id: "opt-1", text: "x = 2", isCorrect: false },
-            { id: "opt-2", text: "x = 4", isCorrect: true },
-            { id: "opt-3", text: "x = 6", isCorrect: false }
+            { id: "o-1", text: "86", isCorrect: false },
+            { id: "o-2", text: "96", isCorrect: true },
+            { id: "o-3", text: "108", isCorrect: false },
+            { id: "o-4", text: "88", isCorrect: false }
+            ]
+        },
+        {
+            id: "q-mat-2",
+            text: "¿Cuánto es la mitad de 250?",
+            options: [
+            { id: "o-5", text: "115", isCorrect: false },
+            { id: "o-6", text: "125", isCorrect: true },
+            { id: "o-7", text: "150", isCorrect: false },
+            { id: "o-8", text: "225", isCorrect: false }
+            ]
+        },
+        {
+            id: "q-mat-3",
+            text: "¿Qué fracción equivale a 0,75?",
+            options: [
+            { id: "o-9", text: "1/2", isCorrect: false },
+            { id: "o-10", text: "2/3", isCorrect: false },
+            { id: "o-11", text: "3/4", isCorrect: true },
+            { id: "o-12", text: "4/5", isCorrect: false }
             ]
         }
-    ]
-}
-],
-attempts: [],
-session: {
+        ]
+    },
+    {
+        id: "exam-len",
+        code: "105556",
+        title: "Lengua y literatura",
+        durationMinutes: 60,
+        passPercentage: 65,
+        description: "Comprensión lectora, gramática y géneros literarios.",
+        questions: [
+        {
+            id: "q-len-1",
+            text: "¿Qué palabra funciona como sustantivo en la oración 'El libro está sobre la mesa'?",
+            options: [
+            { id: "o-len-1", text: "libro", isCorrect: true },
+            { id: "o-len-2", text: "sobre", isCorrect: false },
+            { id: "o-len-3", text: "está", isCorrect: false }
+            ]
+        }
+        ]
+    },
+    {
+        id: "exam-cie",
+        code: "107788",
+        title: "Ciencias naturales",
+        durationMinutes: 50,
+        passPercentage: 60,
+        description: "Ecosistemas, célula y procesos biológicos esenciales.",
+        questions: [
+        {
+            id: "q-cie-1",
+            text: "¿Qué organelo celular realiza principalmente la fotosíntesis en las plantas?",
+            options: [
+            { id: "o-cie-1", text: "Cloroplasto", isCorrect: true },
+            { id: "o-cie-2", text: "Mitocondria", isCorrect: false },
+            { id: "o-cie-3", text: "Ribosoma", isCorrect: false }
+            ]
+        }
+        ]
+    },
+    {
+        id: "exam-his",
+        code: "109876",
+        title: "Historia universal",
+        durationMinutes: 40,
+        passPercentage: 70,
+        description: "Procesos históricos clave de la antigüedad y la edad moderna.",
+        questions: [
+        {
+            id: "q-his-1",
+            text: "¿En qué continente se desarrollaron las civilizaciones de Mesopotamia y Egipto?",
+            options: [
+            { id: "o-his-1", text: "América", isCorrect: false },
+            { id: "o-his-2", text: "Asia y África", isCorrect: true },
+            { id: "o-his-3", text: "Oceanía", isCorrect: false }
+            ]
+        }
+        ]
+    },
+    {
+        id: "exam-ing",
+        code: "101234",
+        title: "Inglés nivel B2",
+        durationMinutes: 90,
+        passPercentage: 75,
+        description: "Reading comprehension, grammar structures and academic vocabulary.",
+        questions: [
+        {
+            id: "q-ing-1",
+            text: "Choose the correct form: 'By next month, she ____ her final project.'",
+            options: [
+            { id: "o-ing-1", text: "will have finished", isCorrect: true },
+            { id: "o-ing-2", text: "finishes", isCorrect: false },
+            { id: "o-ing-3", text: "has finish", isCorrect: false }
+            ]
+        }
+        ]
+    },
+    {
+        id: "exam-fis",
+        code: "104422",
+        title: "Física general",
+        durationMinutes: 60,
+        passPercentage: 70,
+        description: "Movimiento, fuerzas y principios básicos de energía.",
+        questions: [
+        {
+            id: "q-fis-1",
+            text: "¿Cuál es la unidad de fuerza en el Sistema Internacional (SI)?",
+            options: [
+            { id: "o-fis-1", text: "Newton", isCorrect: true },
+            { id: "o-fis-2", text: "Joule", isCorrect: false },
+            { id: "o-fis-3", text: "Watt", isCorrect: false }
+            ]
+        }
+        ]
+    }
+    ],
+    attempts: [],
+    session: {
     currentUserId: null
-}
+    }
 };
 
 export function loadStore() {
@@ -71,7 +159,7 @@ export function loadStore() {
     if (!raw) {
     saveStore(initialData);
     return structuredClone(initialData);
-}
+    }
     return JSON.parse(raw);
 }
 
