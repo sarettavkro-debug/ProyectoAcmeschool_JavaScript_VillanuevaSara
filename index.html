@@ -132,5 +132,45 @@
         </div>
     </section>
     
+    <section id="view-login" class="screen is-hidden" aria-labelledby="login-title">
+    <div class="frame-card">
+        <p class="brand-inline">ACME SCHOOL</p>
+        <h1 id="login-title" class="welcome-purple">Bienvenido, por favor ingrese sus datos:</h1>
+
+        <div class="mint-box">
+        <h2 class="box-heading">FORMULARIO DE INICIO DE SESIÓN</h2>
+        <form id="login-form" class="form-stack">
+            <div class="field-group">
+            <label for="login-email">Escriba su correo electrónico:</label>
+            <input
+                id="login-email"
+                name="email"
+                type="email"
+                placeholder="ej. Acme@gmail.com"
+                required
+            />
+            </div>
+
+            <div class="field-group">
+            <label for="login-password">Escriba su contraseña:</label>
+            <input
+                id="login-password"
+                name="password"
+                type="password"
+                placeholder="••••••••••"
+                required
+            />
+            </div>
+
+            <div class="center-actions">
+            <button type="submit" class="btn-purple">Iniciar sesión</button>
+            <button type="button" id="cancel-login-btn" class="btn-purple btn-sm">Volver</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </section>
+
+    
 
 
