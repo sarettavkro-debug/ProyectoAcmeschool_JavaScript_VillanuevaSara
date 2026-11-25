@@ -39,7 +39,7 @@ Vista inicial para acceder a los módulos administrativos de la plataforma.
 
 | Vista Escritorio | Vista Móvil |
 | :---: | :---: |
-| <img src="Images/Inicio-estudiante.png" alt="Descripción" width="400"> | <img src="Images/sesión.png" alt="Descripción" width="180" > |
+| <img src="Images/Inicio-estudiante.png" alt="Descripción" width="400"> | <img src="Images/sesion.png" alt="Descripción" width="180" > |
 
 
 ### 5. Vista Privada — Gestión de Usuarios
