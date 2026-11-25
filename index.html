@@ -135,7 +135,7 @@
     <section id="view-login" class="screen is-hidden" aria-labelledby="login-title">
     <div class="frame-card">
         <p class="brand-inline">ACME SCHOOL</p>
-        <h1 id="login-title" class="welcome-purple">Bienvenido, por favor ingrese sus datos:</h1>
+        <h2 id="login-title" class="welcome-purple">Bienvenido, por favor ingrese sus datos:</h2>
 
         <div class="mint-box">
         <h2 class="box-heading">FORMULARIO DE INICIO DE SESIÓN</h2>
@@ -173,7 +173,7 @@
 
     <section id="view-users" class="screen is-hidden" aria-labelledby="users-title">
     <div class="frame-card admin-card">
-        <h1 id="users-title" class="admin-title">Gestión de usuarios</h1>
+        <h2 id="users-title" class="admin-title">Gestión de usuarios</h2>
 
         <div class="lavender-panel">
         <h2 id="user-form-heading" class="panel-subtitle">Nuevo usuario</h2>
@@ -236,5 +236,101 @@
         </div>
     </div>
     </section>
+
+    <section id="view-exams" class="screen is-hidden" aria-labelledby="exams-title">
+    <div class="frame-card admin-card">
+        <h2 id="exams-title" class="admin-title">Creación y actualización de examen</h2>
+
+        <div class="lavender-panel">
+            <h2 id="exam-form-heading" class="panel-subtitle">Nuevo exámen</h2>
+            <form id="exam-crud-form" class="grid-3">
+            <div class="field-group">
+                <label for="exam-code">Código</label>
+                <input id="exam-code" name="code" type="text" placeholder="102030" required />
+            </div>
+
+            <div class="field-group">
+                <label for="exam-title">Título</label>
+                <input id="exam-title" name="title" type="text" placeholder="Algebra lineal" required />
+            </div>
+
+            <div class="field-group">
+                <label for="exam-duration">Duración (en minutos)</label>
+                <input id="exam-duration" name="durationMinutes" type="number" min="1" placeholder="70" required />
+            </div>
+
+            <div class="field-group">
+                <label for="exam-pass">Porcentaje de aprobación</label>
+                <input id="exam-pass" name="passPercentage" type="number" min="1" max="100" placeholder="80" required />
+            </div>
+
+            <div class="field-group span-2">
+                <label for="exam-description">Descripción del exámen</label>
+                <input id="exam-description" name="description" type="text" placeholder="Descripción breve" required />
+            </div>
+
+            <div class="form-actions-row span-all">
+                <button type="submit" class="btn-purple">Guardar examen</button>
+                <button type="button" id="reset-exam-form-btn" class="btn-outline-purple">Cancelar / Limpiar</button>
+            </div>
+            </form>
+        </div>
+
+        <h2 class="section-label">Exámenes disponibles</h2>
+        <div class="table-wrap">
+            <table class="data-table">
+            <thead>
+            <tr>
+                <th>Código</th>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Duración</th>
+                <th>% de aprobación</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="exams-table-body"></tbody>
+        </table>
+        </div>
+
+        <div id="questions-builder-section" class="questions-builder">
+            <h2 class="section-label">Preguntas y respuestas del examen</h2>
+            <p id="selected-exam-label" class="lead-muted"></p>
+
+            <div class="builder-grid">
+            <aside class="lavender-panel questions-sidebar">
+                <h3 id="questions-count-heading" class="panel-subtitle">Preguntas (0)</h3>
+                <div id="questions-list-container" class="question-cards-stack"></div>
+                <button type="button" id="new-question-btn" class="btn-purple btn-block">+ Nueva pregunta</button>
+            </aside>
+
+            <div class="lavender-panel question-editor-panel">
+                <h3 id="question-editor-heading" class="panel-subtitle">Nueva pregunta</h3>
+                <form id="question-editor-form" class="editor-stack">
+                <div class="field-group">
+                    <label for="question-text">Enunciado</label>
+                    <textarea id="question-text" name="text" rows="2" placeholder="Escribe el enunciado de la pregunta" required></textarea>
+                </div>
+
+                <div class="options-header">
+                    <span>Respuestas</span>
+                    <span class="helper-inline">Marca solo una como correcta; al elegir otra, se desmarca la anterior.</span>
+                    <span class="pill-correct-hint">Solo 1 correcta</span>
+                </div>
+
+                <div id="question-options-list" class="options-stack"></div>
+
+                <div class="editor-footer-actions">
+                    <button type="submit" class="btn-purple">Guardar pregunta</button>
+                    <button type="button" id="cancel-question-btn" class="btn-outline-purple">Cancelar</button>
+                    <button type="button" id="add-option-btn" class="btn-outline-purple">+ Agregar respuesta</button>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        </div>
+    </section>
+</main>
 
 
