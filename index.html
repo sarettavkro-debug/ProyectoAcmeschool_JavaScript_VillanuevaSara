@@ -63,3 +63,44 @@
 
     <div id="catalog-grid" class="exam-grid"></div>
     </section>
+
+<section id="view-student-register" class="screen is-hidden" aria-labelledby="register-title">
+    <div class="frame-card">
+        <p class="brand-inline">ACME SCHOOL</p>
+        <p class="lead-muted">Estas a punto de empezar el exámen:</p>
+        <h1 id="register-title" class="selected-exam-title"></h1>
+        <div id="register-meta" class="meta-inline"></div>
+
+        <div class="mint-box">
+        <h2 class="box-heading">FORMULARIO DE IDENTIFICACIÓN</h2>
+        <form id="student-register-form" class="form-stack">
+            <div class="field-group">
+            <label for="student-id">Escriba su número de identificación:</label>
+            <input
+                id="student-id"
+                name="studentId"
+                type="text"
+                placeholder="ej. 1234567890"
+                required
+            />
+            </div>
+
+            <div class="field-group">
+            <label for="student-name">Escriba su nombre completo:</label>
+            <input
+                id="student-name"
+                name="studentName"
+                type="text"
+                placeholder="ej. Sara Villanueva"
+                required
+            />
+            </div>
+
+            <div class="center-actions">
+            <button type="submit" class="btn-purple">Iniciar exámen</button>
+            <button type="button" id="back-to-catalog-btn" class="btn-purple btn-sm">Volver</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </section>
