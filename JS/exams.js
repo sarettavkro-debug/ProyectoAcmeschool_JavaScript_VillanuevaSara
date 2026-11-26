@@ -4,536 +4,318 @@ import { isAuthenticated } from "./auth.js";
 let editingExamId = null;
 let selectedExamId = null;
 let editingQuestionId = null;
-let draftOptions = [];
+let optionsDraft = [];
 
 export function initExamsModule(state, onNotify, onCatalogChange) {
-    const examForm = document.getElementById("exam-crud-form");
-    const resetExamBtn = document.getElementById("reset-exam-form-btn");
-    const examsTableBody = document.getElementById("exams-table-body");
+  const examForm = document.getElementById("exam-crud-form");
+  const resetExamBtn = document.getElementById("reset-exam-form-btn");
+  const tableBody = document.getElementById("exams-table-body");
+  const newQuestionBtn = document.getElementById("new-question-btn");
+  const addOptionBtn = document.getElementById("add-option-btn");
+  const cancelQuestionBtn = document.getElementById("cancel-question-btn");
+  const questionForm = document.getElementById("question-editor-form");
+  const optionsList = document.getElementById("question-options-list");
+  const questionsList = document.getElementById("questions-list-container");
 
-const newQuestionBtn = document.getElementById("new-question-btn");
-const questionsListContainer = document.getElementById("questions-list-container");
-const questionForm = document.getElementById("question-editor-form");
-const addOptionBtn = document.getElementById("add-option-btn");
-const cancelQuestionBtn = document.getElementById("cancel-question-btn");
-const optionsListContainer = document.getElementById("question-options-list");
+  if (!examForm || !tableBody) return;
 
-if (!examForm || !examsTableBody) return;
-
-if (!selectedExamId && state.exams.length > 0) {
+  if (!selectedExamId && state.exams.length > 0) {
     selectedExamId = state.exams[0].id;
-}
+  }
 
-examForm.addEventListener("submit", (event) => {
-    event.preventDefault();
+  examForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!isAuthenticated(state)) return onNotify("Inicia sesión primero.", "error");
 
-    if (!isAuthenticated(state)) {
-    onNotify("Debes iniciar sesión para gestionar exámenes.", "error");
-    return;
-    }
-
-    const formData = new FormData(examForm);
-    const examPayload = {
-    code: String(formData.get("code") || "").trim(),
-    title: String(formData.get("title") || "").trim(),
-    durationMinutes: Number(formData.get("durationMinutes")),
-    passPercentage: Number(formData.get("passPercentage")),
-    description: String(formData.get("description") || "").trim()
+    const data = {
+      code: examForm.code.value.trim(),
+      title: examForm.title.value.trim(),
+      durationMinutes: Number(examForm.durationMinutes.value),
+      passPercentage: Number(examForm.passPercentage.value),
+      description: examForm.description.value.trim()
     };
 
-    const result = editingExamId
-    ? updateExam(state, editingExamId, examPayload)
-    : createExam(state, examPayload);
-
-    if (!result.ok) {
-    onNotify(result.message, "error");
-        return;
+    if (!data.code || !data.title || !data.description || data.durationMinutes <= 0) {
+      return onNotify("Completa todos los campos del examen con valores válidos.", "error");
     }
 
+    if (editingExamId) {
+      const idx = state.exams.findIndex((item) => item.id === editingExamId);
+      if (idx !== -1) state.exams[idx] = { ...state.exams[idx], ...data };
+      onNotify("Examen actualizado.", "success");
+    } else {
+      const created = { id: `exam-${Date.now()}`, ...data, questions: [] };
+      state.exams.push(created);
+      selectedExamId = created.id;
+      onNotify("Examen creado.", "success");
+    }
+
+    saveStore(state);
     resetExamForm();
     renderExamsModule(state);
     if (onCatalogChange) onCatalogChange();
-    onNotify(result.message, "success");
-});
+  });
 
-if (resetExamBtn) {
-    resetExamBtn.addEventListener("click", () => {
-        resetExamForm();
-    });
-}
+  resetExamBtn?.addEventListener("click", resetExamForm);
 
+  tableBody.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn || !isAuthenticated(state)) return;
 
-examsTableBody.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-action]");
-    if (!button) return;
-
-    if (!isAuthenticated(state)) {
-        onNotify("Acceso denegado. Inicia sesión primero.", "error");
-        return;
-    }
-
-    const action = button.dataset.action;
-    const examId = button.dataset.id;
+    const { action, id } = btn.dataset;
+    const exam = state.exams.find((item) => item.id === id);
+    if (!exam) return;
 
     if (action === "select") {
-        selectedExamId = examId;
-        startNewQuestionDraft();
-        renderExamsModule(state);
+      selectedExamId = id;
+      resetQuestionEditor();
+      renderExamsModule(state);
     } else if (action === "edit") {
-        loadExamIntoForm(state, examId);
+      editingExamId = id;
+      selectedExamId = id;
+      examForm.code.value = exam.code;
+      examForm.title.value = exam.title;
+      examForm.durationMinutes.value = exam.durationMinutes;
+      examForm.passPercentage.value = exam.passPercentage;
+      examForm.description.value = exam.description;
+      document.getElementById("exam-form-heading").textContent = `Editando: ${exam.title}`;
+      renderExamsModule(state);
     } else if (action === "delete") {
-        const result = deleteExam(state, examId);
-        if (!result.ok) {
-        onNotify(result.message, "error");
-        return;
-        }
-        if (editingExamId === examId) {
-        resetExamForm();
-        }
-        if (selectedExamId === examId) {
-        selectedExamId = state.exams[0]?.id || null;
-        startNewQuestionDraft();
-        }
-        renderExamsModule(state);
-        if (onCatalogChange) onCatalogChange();
-    onNotify(result.message, "success");
+      state.exams = state.exams.filter((item) => item.id !== id);
+      if (selectedExamId === id) selectedExamId = state.exams[0]?.id || null;
+      saveStore(state);
+      renderExamsModule(state);
+      if (onCatalogChange) onCatalogChange();
+      onNotify("Examen eliminado.", "success");
     }
-});
+  });
 
-if (newQuestionBtn) {
-    newQuestionBtn.addEventListener("click", () => {
+  newQuestionBtn?.addEventListener("click", () => {
     if (!selectedExamId) {
-        onNotify("Primero selecciona o crea un examen.", "error");
-        return;
+      return onNotify("Primero crea o selecciona un examen.", "error");
     }
-        startNewQuestionDraft();
-        renderQuestionBuilder(state);
+    resetQuestionEditor();
+    document.getElementById("question-text")?.focus();
+  });
+
+  addOptionBtn?.addEventListener("click", () => {
+    readOptionsFromInputs();
+    optionsDraft.push({
+      id: `opt-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+      text: "",
+      isCorrect: false
     });
+    renderOptions();
+  });
+
+  cancelQuestionBtn?.addEventListener("click", resetQuestionEditor);
+
+  optionsList?.addEventListener("change", (e) => {
+    if (e.target.matches('input[type="radio"][name="correctOption"]')) {
+      readOptionsFromInputs();
+      const chosenId = e.target.value;
+      // Solo una opción puede quedar marcada como correcta
+      optionsDraft = optionsDraft.map((opt) => ({
+        ...opt,
+        isCorrect: opt.id === chosenId
+      }));
+      renderOptions();
     }
+  });
 
-if (questionsListContainer) {
-    questionsListContainer.addEventListener("click", (event) => {
-        const button = event.target.closest("button[data-q-action]");
-        if (!button) return;
-
-        if (!isAuthenticated(state)) {
-        onNotify("Inicia sesión para modificar preguntas.", "error");
-        return;
-        }
-
-        const exam = state.exams.find((e) => e.id === selectedExamId);
-        if (!exam) return;
-
-        const questionId = button.dataset.qid;
-        const qAction = button.dataset.qAction;
-
-        if (qAction === "edit") {
-        loadQuestionIntoEditor(exam, questionId);
-        } else if (qAction === "delete") {
-        exam.questions = exam.questions.filter((q) => q.id !== questionId);
-        if (editingQuestionId === questionId) {
-            startNewQuestionDraft();
-        }
-        saveStore(state);
-        renderExamsModule(state);
-        if (onCatalogChange) onCatalogChange();
-        onNotify("Pregunta eliminada del examen.", "success");
-        }
-    });
-}
-
-if (addOptionBtn) {
-    addOptionBtn.addEventListener("click", () => {
-        syncDraftOptionsFromDOM();
-        const hasCorrect = draftOptions.some((opt) => opt.isCorrect);
-        draftOptions.push({
-        id: `opt-${crypto.randomUUID().slice(0, 8)}`,
-        text: "",
-        isCorrect: !hasCorrect
-        });
-        renderOptionsEditor();
-    });
-}
-
-
-if (cancelQuestionBtn) {
-    cancelQuestionBtn.addEventListener("click", () => {
-        startNewQuestionDraft();
-        renderQuestionBuilder(state);
-    });
-}
-
-
-if (optionsListContainer) {
-    optionsListContainer.addEventListener("change", (event) => {
-        if (event.target.matches('input[type="radio"][name="correctOption"]')) {
-        syncDraftOptionsFromDOM();
-        const chosenId = event.target.value;
-
-        draftOptions = draftOptions.map((opt) => ({
-            ...opt,
-            isCorrect: opt.id === chosenId
-        }));
-        renderOptionsEditor();
+  optionsList?.addEventListener("click", (e) => {
+    const delBtn = e.target.closest("button[data-remove]");
+    if (!delBtn) return;
+    readOptionsFromInputs();
+    if (optionsDraft.length <= 2) {
+      return onNotify("La pregunta necesita al menos 2 opciones.", "error");
     }
-    });
+    optionsDraft = optionsDraft.filter((opt) => opt.id !== delBtn.dataset.remove);
+    if (!optionsDraft.some((opt) => opt.isCorrect)) optionsDraft[0].isCorrect = true;
+    renderOptions();
+  });
 
-    optionsListContainer.addEventListener("click", (event) => {
-        const removeBtn = event.target.closest("button[data-remove-opt]");
-        if (!removeBtn) return;
+  questionsList?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-qaction]");
+    if (!btn || !isAuthenticated(state)) return;
+    const exam = state.exams.find((item) => item.id === selectedExamId);
+    if (!exam) return;
 
-        syncDraftOptionsFromDOM();
-        const targetOptId = removeBtn.dataset.removeOpt;
-        const remaining = draftOptions.filter((opt) => opt.id !== targetOptId);
+    const qId = btn.dataset.qid;
+    if (btn.dataset.qaction === "edit") {
+      const q = exam.questions.find((item) => item.id === qId);
+      if (!q) return;
+      editingQuestionId = q.id;
+      document.getElementById("question-text").value = q.text;
+      document.getElementById("question-editor-heading").textContent = "Editando pregunta";
+      optionsDraft = structuredClone(q.options);
+      renderOptions();
+    } else if (btn.dataset.qaction === "delete") {
+      exam.questions = exam.questions.filter((item) => item.id !== qId);
+      saveStore(state);
+      resetQuestionEditor();
+      renderExamsModule(state);
+      if (onCatalogChange) onCatalogChange();
+      onNotify("Pregunta eliminada.", "success");
+    }
+  });
 
-        if (remaining.length < 2) {
-        onNotify("Cada pregunta debe tener al menos 2 opciones de respuesta.", "error");
-        return;
-        }
+  questionForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!isAuthenticated(state)) return onNotify("Inicia sesión primero.", "error");
 
+    const exam = state.exams.find((item) => item.id === selectedExamId);
+    if (!exam) return onNotify("Selecciona un examen primero.", "error");
 
-        if (!remaining.some((opt) => opt.isCorrect)) {
-            remaining[0].isCorrect = true;
-        }
+    readOptionsFromInputs();
+    const text = document.getElementById("question-text").value.trim();
+    const cleanOptions = optionsDraft.filter((opt) => opt.text.trim() !== "");
+    const correctCount = cleanOptions.filter((opt) => opt.isCorrect).length;
 
-        draftOptions = remaining;
-        renderOptionsEditor();
-    });
-}
-
-if (questionForm) {
-    questionForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        if (!isAuthenticated(state)) {
-        onNotify("Debes iniciar sesión para guardar preguntas.", "error");
-        return;
-        }
-
-        const exam = state.exams.find((e) => e.id === selectedExamId);
-        if (!exam) {
-        onNotify("Selecciona primero un examen de la tabla.", "error");
-        return;
-        }
-
-        syncDraftOptionsFromDOM();
-        const promptText = String(document.getElementById("question-text").value || "").trim();
-
-        const validOptions = draftOptions.filter((opt) => opt.text.trim() !== "");
-        const correctCount = validOptions.filter((opt) => opt.isCorrect).length;
-
-        if (!promptText) {
-        onNotify("El enunciado de la pregunta es obligatorio.", "error");
-        return;
-        }
-
-        if (validOptions.length < 2) {
-        onNotify("Agrega al menos 2 opciones de respuesta con texto.", "error");
-        return;
-        }
-
-        if (correctCount !== 1) {
-        onNotify("Debe haber exactamente una respuesta marcada como correcta.", "error");
-        return;
-        }
-
-        const questionPayload = {
-        id: editingQuestionId || `q-${crypto.randomUUID().slice(0, 8)}`,
-        text: promptText,
-        options: validOptions.map((opt) => ({
-            id: opt.id,
-            text: opt.text.trim(),
-            isCorrect: Boolean(opt.isCorrect)
-        }))
-        };
-
-        if (editingQuestionId) {
-        const qIndex = exam.questions.findIndex((q) => q.id === editingQuestionId);
-        if (qIndex !== -1) {
-            exam.questions[qIndex] = questionPayload;
-        }
-        } else {
-        exam.questions.push(questionPayload);
-        }
-
-        saveStore(state);
-        startNewQuestionDraft();
-        renderExamsModule(state);
-        if (onCatalogChange) onCatalogChange();
-        onNotify("Pregunta guardada correctamente.", "success");
-    });
+    if (!text || cleanOptions.length < 2) {
+      return onNotify("Escribe el enunciado y al menos 2 opciones con texto.", "error");
+    }
+    if (correctCount !== 1) {
+      return onNotify("Marca exactamente 1 respuesta como correcta.", "error");
     }
 
-startNewQuestionDraft();
-renderExamsModule(state);
-}
-
-function createExam(state, data) {
-const error = validateExamData(data);
-if (error) return { ok: false, message: error };
-
-const duplicateCode = state.exams.some(
-    (e) => e.code.toLowerCase() === data.code.toLowerCase()
-);
-if (duplicateCode) {
-    return { ok: false, message: "Ya existe un examen con ese código." };
-}
-
-const newExam = {
-    id: `exam-${crypto.randomUUID().slice(0, 8)}`,
-    code: data.code,
-    title: data.title,
-    durationMinutes: data.durationMinutes,
-    passPercentage: data.passPercentage,
-    description: data.description,
-    questions: []
-};
-
-state.exams.push(newExam);
-selectedExamId = newExam.id;
-saveStore(state);
-
-return { ok: true, message: `Examen "${newExam.title}" creado.` };
-}
-
-function updateExam(state, examId, data) {
-const error = validateExamData(data);
-if (error) return { ok: false, message: error };
-
-const index = state.exams.findIndex((e) => e.id === examId);
-if (index === -1) return { ok: false, message: "Examen no encontrado." };
-
-const duplicateCode = state.exams.some(
-    (e) => e.id !== examId && e.code.toLowerCase() === data.code.toLowerCase()
-);
-if (duplicateCode) {
-    return { ok: false, message: "Otro examen ya utiliza ese código." };
-}
-
-state.exams[index] = {
-    ...state.exams[index],
-    code: data.code,
-    title: data.title,
-    durationMinutes: data.durationMinutes,
-    passPercentage: data.passPercentage,
-    description: data.description
-};
-
-saveStore(state);
-return { ok: true, message: `Examen "${data.title}" actualizado.` };
-}
-
-function deleteExam(state, examId) {
-const index = state.exams.findIndex((e) => e.id === examId);
-if (index === -1) return { ok: false, message: "Examen no encontrado." };
-
-const [removed] = state.exams.splice(index, 1);
-saveStore(state);
-return { ok: true, message: `Examen "${removed.title}" eliminado.` };
-}
-
-function validateExamData(data) {
-if (!data.code || !data.title || !data.description) {
-    return "Código, título y descripción del examen son obligatorios.";
-}
-if (!Number.isFinite(data.durationMinutes) || data.durationMinutes <= 0) {
-    return "La duración debe ser mayor a 0 minutos.";
-}
-if (!Number.isFinite(data.passPercentage) || data.passPercentage < 1 || data.passPercentage > 100) {
-    return "El porcentaje de aprobación debe estar entre 1 y 100.";
-}
-return null;
-}
-
-function loadExamIntoForm(state, examId) {
-const exam = state.exams.find((e) => e.id === examId);
-if (!exam) return;
-
-editingExamId = exam.id;
-selectedExamId = exam.id;
-
-const heading = document.getElementById("exam-form-heading");
-if (heading) heading.textContent = `Editando examen: ${exam.title}`;
-
-document.getElementById("exam-code").value = exam.code;
-document.getElementById("exam-title").value = exam.title;
-document.getElementById("exam-duration").value = exam.durationMinutes;
-document.getElementById("exam-pass").value = exam.passPercentage;
-document.getElementById("exam-description").value = exam.description;
-
-renderQuestionBuilder(state);
-}
-
-export function resetExamForm() {
-editingExamId = null;
-const form = document.getElementById("exam-crud-form");
-const heading = document.getElementById("exam-form-heading");
-if (form) form.reset();
-if (heading) heading.textContent = "Nuevo exámen";
-}
-
-function startNewQuestionDraft() {
-editingQuestionId = null;
-draftOptions = [
-    { id: "draft-opt-1", text: "", isCorrect: true },
-    { id: "draft-opt-2", text: "", isCorrect: false }
-];
-
-const textArea = document.getElementById("question-text");
-const heading = document.getElementById("question-editor-heading");
-if (textArea) textArea.value = "";
-if (heading) heading.textContent = "Nueva pregunta";
-
-renderOptionsEditor();
-}
-
-function loadQuestionIntoEditor(exam, questionId) {
-const question = exam.questions.find((q) => q.id === questionId);
-if (!question) return;
-
-editingQuestionId = question.id;
-draftOptions = structuredClone(question.options);
-
-const heading = document.getElementById("question-editor-heading");
-const textArea = document.getElementById("question-text");
-const qIndex = exam.questions.findIndex((q) => q.id === question.id);
-
-if (heading) heading.textContent = `Editando la pregunta ${qIndex + 1}`;
-if (textArea) textArea.value = question.text;
-
-renderOptionsEditor();
-}
-
-function syncDraftOptionsFromDOM() {
-const rows = document.querySelectorAll(".option-row-editor");
-draftOptions = Array.from(rows).map((row) => {
-    const optId = row.dataset.optId;
-    const input = row.querySelector('input[type="text"]');
-    const radio = row.querySelector('input[type="radio"]');
-    return {
-        id: optId,
-        text: input ? input.value : "",
-        isCorrect: radio ? radio.checked : false
+    const questionObj = {
+      id: editingQuestionId || `q-${Date.now()}`,
+      text,
+      options: cleanOptions.map((opt) => ({ ...opt, text: opt.text.trim() }))
     };
-});
+
+    if (editingQuestionId) {
+      const idx = exam.questions.findIndex((q) => q.id === editingQuestionId);
+      if (idx !== -1) exam.questions[idx] = questionObj;
+    } else {
+      exam.questions.push(questionObj);
+    }
+
+    saveStore(state);
+    resetQuestionEditor();
+    renderExamsModule(state);
+    if (onCatalogChange) onCatalogChange();
+    onNotify("Pregunta guardada.", "success");
+  });
+
+  resetQuestionEditor();
+  renderExamsModule(state);
 }
 
-function renderOptionsEditor() {
-const container = document.getElementById("question-options-list");
-if (!container) return;
+function resetExamForm() {
+  editingExamId = null;
+  document.getElementById("exam-crud-form")?.reset();
+  const heading = document.getElementById("exam-form-heading");
+  if (heading) heading.textContent = "Nuevo exámen";
+}
 
-container.innerHTML = draftOptions
+function resetQuestionEditor() {
+  editingQuestionId = null;
+  const textArea = document.getElementById("question-text");
+  const heading = document.getElementById("question-editor-heading");
+  if (textArea) textArea.value = "";
+  if (heading) heading.textContent = "Nueva pregunta";
+
+  optionsDraft = [
+    { id: "opt-1", text: "", isCorrect: true },
+    { id: "opt-2", text: "", isCorrect: false }
+  ];
+  renderOptions();
+}
+
+function readOptionsFromInputs() {
+  const rows = document.querySelectorAll(".option-row-editor");
+  optionsDraft = Array.from(rows).map((row) => ({
+    id: row.dataset.optId,
+    text: row.querySelector('input[type="text"]')?.value || "",
+    isCorrect: Boolean(row.querySelector('input[type="radio"]')?.checked)
+  }));
+}
+
+function renderOptions() {
+  const container = document.getElementById("question-options-list");
+  if (!container) return;
+
+  container.innerHTML = optionsDraft
     .map(
-        (opt, idx) => `
-        <div class="option-row-editor ${opt.isCorrect ? "is-correct" : ""}" data-opt-id="${escapeHtml(opt.id)}">
-        <input
-            type="radio"
-            name="correctOption"
-            value="${escapeHtml(opt.id)}"
-            aria-label="Marcar opción ${idx + 1} como respuesta correcta"
-            ${opt.isCorrect ? "checked" : ""}
-        />
-        <input
-            type="text"
-            value="${escapeHtml(opt.text)}"
-            placeholder="Texto de la opción ${idx + 1}"
-            aria-label="Descripción de la opción ${idx + 1}"
-        />
+      (opt, idx) => `
+      <div class="option-row-editor ${opt.isCorrect ? "is-correct" : ""}" data-opt-id="${opt.id}">
+        <input type="radio" name="correctOption" value="${opt.id}" ${opt.isCorrect ? "checked" : ""} />
+        <input type="text" value="${escapeHtml(opt.text)}" placeholder="Opción ${idx + 1}" />
         ${opt.isCorrect ? '<span class="pill-correct-hint">Respuesta correcta</span>' : ""}
-        <button type="button" class="action-btn-delete" data-remove-opt="${escapeHtml(opt.id)}">
-            Quitar
-        </button>
-        </div>
+        <button type="button" class="action-btn-delete" data-remove="${opt.id}">Quitar</button>
+      </div>
     `
     )
     .join("");
 }
 
 export function renderExamsModule(state) {
-const tableBody = document.getElementById("exams-table-body");
-if (!tableBody) return;
+  const tableBody = document.getElementById("exams-table-body");
+  if (!tableBody) return;
 
-tableBody.innerHTML = state.exams
+  if (!selectedExamId && state.exams.length > 0) {
+    selectedExamId = state.exams[0].id;
+  }
+
+  tableBody.innerHTML = state.exams
     .map(
-        (exam) => `
-        <tr>
+      (exam) => `
+      <tr>
         <td>${escapeHtml(exam.code)}</td>
         <td><strong>${escapeHtml(exam.title)}</strong></td>
         <td>${escapeHtml(exam.description)}</td>
-        <td>${escapeHtml(exam.durationMinutes)} minutos</td>
-        <td>${escapeHtml(exam.passPercentage)}%</td>
+        <td>${exam.durationMinutes} minutos</td>
+        <td>${exam.passPercentage}%</td>
         <td>
-            <button type="button" class="btn-outline-purple" data-action="select" data-id="${escapeHtml(exam.id)}">
+          <button type="button" class="btn-outline-purple" data-action="select" data-id="${exam.id}">
             Preguntas (${exam.questions.length})
-            </button>
-            <button type="button" class="action-btn-edit" data-action="edit" data-id="${escapeHtml(exam.id)}">
+          </button>
+          <button type="button" class="action-btn-edit" data-action="edit" data-id="${exam.id}">
             Actualizar
-            </button>
-            <button type="button" class="action-btn-delete" data-action="delete" data-id="${escapeHtml(exam.id)}">
+          </button>
+          <button type="button" class="action-btn-delete" data-action="delete" data-id="${exam.id}">
             Eliminar
-            </button>
+          </button>
         </td>
-        </tr>
+      </tr>
     `
     )
     .join("");
 
-renderQuestionBuilder(state);
-}
+  const selectedLabel = document.getElementById("selected-exam-label");
+  const countHeading = document.getElementById("questions-count-heading");
+  const qList = document.getElementById("questions-list-container");
+  const exam = state.exams.find((item) => item.id === selectedExamId);
 
-function renderQuestionBuilder(state) {
-const selectedLabel = document.getElementById("selected-exam-label");
-const countHeading = document.getElementById("questions-count-heading");
-const listContainer = document.getElementById("questions-list-container");
-
-const exam = state.exams.find((e) => e.id === selectedExamId) || state.exams[0] || null;
-if (exam) {
-    selectedExamId = exam.id;
-}
-
-if (!exam) {
-    if (selectedLabel) selectedLabel.textContent = "Crea un examen para agregar preguntas.";
-    if (countHeading) countHeading.textContent = "Preguntas (0)";
-    if (listContainer) listContainer.innerHTML = "";
-    return;
-}
-
-if (selectedLabel) {
-    selectedLabel.textContent = `Examen seleccionado: ${exam.title} (código ${exam.code})`;
-}
-if (countHeading) {
-    countHeading.textContent = `Preguntas (${exam.questions.length})`;
-}
-
-if (listContainer) {
-    if (exam.questions.length === 0) {
-        listContainer.innerHTML = `<p class="helper-note">Este examen aún no tiene preguntas.</p>`;
-        return;
-    }
-
-    listContainer.innerHTML = exam.questions
-        .map((q, index) => {
-        const isEditing = q.id === editingQuestionId;
-        return `
-            <div class="question-mini-card ${isEditing ? "is-active" : ""}">
-            <p class="question-prompt">${index + 1}. ${escapeHtml(q.text)}</p>
-            <div>
-                <button type="button" class="action-btn-edit" data-q-action="edit" data-qid="${escapeHtml(q.id)}">
-                Editar
-                </button>
-                <button type="button" class="action-btn-delete" data-q-action="delete" data-qid="${escapeHtml(q.id)}">
-                Eliminar
-                </button>
+  if (selectedLabel) {
+    selectedLabel.textContent = exam
+      ? `Examen seleccionado: ${exam.title} (código ${exam.code})`
+      : "Crea o selecciona un examen para agregar preguntas.";
+  }
+  if (countHeading) {
+    countHeading.textContent = `Preguntas (${exam ? exam.questions.length : 0})`;
+  }
+  if (qList) {
+    qList.innerHTML = exam
+      ? exam.questions
+          .map(
+            (q, i) => `
+            <div class="question-mini-card ${q.id === editingQuestionId ? "is-active" : ""}">
+              <p class="question-prompt">${i + 1}. ${escapeHtml(q.text)}</p>
+              <button type="button" class="action-btn-edit" data-qaction="edit" data-qid="${q.id}">Editar</button>
+              <button type="button" class="action-btn-delete" data-qaction="delete" data-qid="${q.id}">Eliminar</button>
             </div>
-            </div>
-        `;
-        })
-        .join("");
-}
+          `
+          )
+          .join("")
+      : "";
+  }
 }
 
 function escapeHtml(value) {
-return String(value)
+  return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
