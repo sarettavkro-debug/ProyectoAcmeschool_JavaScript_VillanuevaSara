@@ -1,7 +1,5 @@
-# ProyectoAcmeschool_JavaScript_VillanuevaSara
-La escuela Acme requiere de una plataforma, en la cual, sus estudiantes puedan realizar exámenes a través de la web.
 
-## Mockups 
+## Mockups
 
 ### 1. Vista Pública — Catálogo de Exámenes (`Pantalla inicial pública`)
 Es el punto de entrada para los estudiantes, sin necesidad de autenticarse.
@@ -55,4 +53,3 @@ Accesible solo tras iniciar sesión.
 | Vista Escritorio | Vista Móvil |
 | :---: | :---: |
 | <img src="Images/Gestion-examen.png" alt="Descripción" width="400"> | <img src="Images/Gestion-examen-phone.png" alt="Descripción" width="180" > |
-
