@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Acme School — Plataforma de Exámenes</title>
+<link rel="stylesheet" href="./CSS/styles.css" />
+</head>
+<body>
+<header class="topbar">
+    <div class="container topbar-inner">
+    <a href="#catalog" class="brand" data-view="catalog">ACME SCHOOL</a>
+
+    <nav class="topbar-nav" aria-label="Navegación principal">
+        <button type="button" class="nav-link is-active" data-view="catalog">
+        Catálogo de exámenes
+        </button>
+        <button type="button" class="nav-link" data-view="users" data-auth-only="true">
+        Usuarios
+        </button>
+        <button type="button" class="nav-link" data-view="exams" data-auth-only="true">
+        Exámenes
+        </button>
+    </nav>
+
+    <div class="topbar-actions">
+        <span id="session-badge" class="session-badge is-hidden"></span>
+        <button type="button" id="open-login-btn" class="btn-outline-header">
+        Acceso personal administrativo
+        </button>
+        <button type="button" id="logout-btn" class="btn-outline-header is-hidden">
+        Cerrar sesión
+        </button>
+    </div>
+    </div>
+</header>
+
+<main class="container main-shell">
+    <div id="status-message" class="status-banner is-hidden" role="status" aria-live="polite"></div>
+
+    <!-- 1. Catálogo público -->
+    <section id="view-catalog" class="screen" aria-labelledby="catalog-title">
+    <div class="hero-card">
+        <div class="hero-copy">
+        <h1 id="catalog-title" class="hero-title">
+            TU ESPACIO<br />DE<br />FORMACIÓN
+        </h1>
+        <p class="hero-subtitle">
+            Encuentra exámenes que te desafían y forman académicamente
+        </p>
+        </div>
+        <div class="hero-illustration" aria-hidden="true">
+        <div class="desk-item desk-book"></div>
+        <div class="desk-item desk-pencil"></div>
+        <div class="desk-item desk-ruler"></div>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <h2>Exámenes disponibles</h2>
+        <p>Elige un examen para comenzar. Revisa el tiempo y el porcentaje mínimo para aprobar.</p>
+    </div>
+
+    <div id="catalog-grid" class="exam-grid"></div>
+    </section>
+
+<section id="view-student-register" class="screen is-hidden" aria-labelledby="register-title">
+    <div class="frame-card">
+        <p class="brand-inline">ACME SCHOOL</p>
+        <p class="lead-muted">Estas a punto de empezar el exámen:</p>
+        <h2 id="register-title" class="selected-exam-title"></h2>
+        <div id="register-meta" class="meta-inline"></div>
+
+        <div class="mint-box">
+        <h2 class="box-heading">FORMULARIO DE IDENTIFICACIÓN</h2>
+        <form id="student-register-form" class="form-stack">
+            <div class="field-group">
+            <label for="student-id">Escriba su número de identificación:</label>
+            <input
+                id="student-id"
+                name="studentId"
+                type="text"
+                placeholder="ej. 1234567890"
+                required
+            />
+            </div>
+
+            <div class="field-group">
+            <label for="student-name">Escriba su nombre completo:</label>
+            <input
+                id="student-name"
+                name="studentName"
+                type="text"
+                placeholder="ej. Sara Villanueva"
+                required
+            />
+            </div>
+
+            <div class="center-actions">
+            <button type="submit" class="btn-purple">Iniciar exámen</button>
+            <button type="button" id="back-to-catalog-btn" class="btn-purple btn-sm">Volver</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </section>
+
+    <section id="view-exam-runner" class="screen is-hidden" aria-labelledby="runner-exam-title">
+        <div class="frame-card runner-card">
+        <div class="runner-banner">
+        <div>
+            <h2 id="runner-exam-title" class="runner-title"></h2>
+            <div id="runner-badges" class="runner-badges"></div>
+        </div>
+        <div id="runner-timer-slot"></div>
+        </div>
+
+        <form id="runner-questions-form" class="runner-body">
+        <div id="runner-questions-list" class="questions-stack"></div>
+
+        <div class="runner-footer">
+            <p id="runner-helper-note" class="helper-note"></p>
+            <button type="submit" id="finish-exam-btn" class="btn-purple">Terminar</button>
+        </div>
+        </form>
+    </div>
+    </section>
+
+    <section id="view-exam-result" class="screen is-hidden" aria-labelledby="result-title">
+        <div class="frame-card result-stage">
+        <div id="result-card" class="result-card"></div>
+        </div>
+    </section>
+    
+    <section id="view-login" class="screen is-hidden" aria-labelledby="login-title">
+    <div class="frame-card">
+        <p class="brand-inline">ACME SCHOOL</p>
+        <h2 id="login-title" class="welcome-purple">Bienvenido, por favor ingrese sus datos:</h2>
+
+        <div class="mint-box">
+        <h2 class="box-heading">FORMULARIO DE INICIO DE SESIÓN</h2>
+        <form id="login-form" class="form-stack">
+            <div class="field-group">
+            <label for="login-email">Escriba su correo electrónico:</label>
+            <input
+                id="login-email"
+                name="email"
+                type="email"
+                placeholder="ej. Acme@gmail.com"
+                required
+            />
+            </div>
+
+            <div class="field-group">
+            <label for="login-password">Escriba su contraseña:</label>
+            <input
+                id="login-password"
+                name="password"
+                type="password"
+                placeholder="••••••••••"
+                required
+            />
+            </div>
+
+            <div class="center-actions">
+            <button type="submit" class="btn-purple">Iniciar sesión</button>
+            <button type="button" id="cancel-login-btn" class="btn-purple btn-sm">Volver</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    </section>
+
+    <section id="view-users" class="screen is-hidden" aria-labelledby="users-title">
+    <div class="frame-card admin-card">
+        <h2 id="users-title" class="admin-title">Gestión de usuarios</h2>
+
+        <div class="lavender-panel">
+        <h2 id="user-form-heading" class="panel-subtitle">Nuevo usuario</h2>
+        <form id="user-crud-form" class="grid-3">
+            <div class="field-group">
+            <label for="user-id">Número de identificación</label>
+            <input id="user-id" name="id" type="text" placeholder="1020304050" required />
+            </div>
+
+            <div class="field-group">
+            <label for="user-fullname">Nombre completo</label>
+            <input id="user-fullname" name="fullName" type="text" placeholder="Ana María Gómez" required />
+            </div>
+
+            <div class="field-group">
+            <label for="user-email">Email</label>
+            <input id="user-email" name="email" type="email" placeholder="ana@acmeschool.edu" required />
+            </div>
+
+            <div class="field-group">
+            <label for="user-phone">Teléfono</label>
+            <input id="user-phone" name="phone" type="text" placeholder="+57 300 123 4567" required />
+            </div>
+
+            <div class="field-group">
+            <label for="user-role">Cargo</label>
+            <select id="user-role" name="role" required>
+                <option value="Docente">Docente</option>
+                <option value="Administrativo">Administrativo</option>
+            </select>
+            </div>
+
+            <div class="field-group">
+            <label for="user-password">Contraseña</label>
+            <input id="user-password" name="password" type="password" placeholder="••••••••" required />
+            </div>
+
+            <div class="form-actions-row span-all">
+            <button type="submit" class="btn-purple">Guardar usuario</button>
+        <button type="button" id="reset-user-form-btn" class="btn-outline-purple">Cancelar / Limpiar</button>
+            </div>
+        </form>
+        </div>
+
+        <h2 class="section-label">Usuarios registrados</h2>
+        <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Identificación</th>
+                <th>Nombre completo</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Cargo</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="users-table-body"></tbody>
+        </table>
+        </div>
+    </div>
+    </section>
+
+    <section id="view-exams" class="screen is-hidden" aria-labelledby="exams-title">
+    <div class="frame-card admin-card">
+        <h2 id="exams-title" class="admin-title">Creación y actualización de examen</h2>
+
+        <div class="lavender-panel">
+            <h2 id="exam-form-heading" class="panel-subtitle">Nuevo exámen</h2>
+            <form id="exam-crud-form" class="grid-3">
+            <div class="field-group">
+                <label for="exam-code">Código</label>
+                <input id="exam-code" name="code" type="text" placeholder="102030" required />
+            </div>
+
+            <div class="field-group">
+                <label for="exam-title">Título</label>
+                <input id="exam-title" name="title" type="text" placeholder="Algebra lineal" required />
+            </div>
+
+            <div class="field-group">
+                <label for="exam-duration">Duración (en minutos)</label>
+                <input id="exam-duration" name="durationMinutes" type="number" min="1" placeholder="70" required />
+            </div>
+
+            <div class="field-group">
+                <label for="exam-pass">Porcentaje de aprobación</label>
+                <input id="exam-pass" name="passPercentage" type="number" min="1" max="100" placeholder="80" required />
+            </div>
+
+            <div class="field-group span-2">
+                <label for="exam-description">Descripción del exámen</label>
+                <input id="exam-description" name="description" type="text" placeholder="Descripción breve" required />
+            </div>
+
+            <div class="form-actions-row span-all">
+                <button type="submit" class="btn-purple">Guardar examen</button>
+                <button type="button" id="reset-exam-form-btn" class="btn-outline-purple">Cancelar / Limpiar</button>
+            </div>
+            </form>
+        </div>
+
+        <h2 class="section-label">Exámenes disponibles</h2>
+        <div class="table-wrap">
+            <table class="data-table">
+            <thead>
+            <tr>
+                <th>Código</th>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Duración</th>
+                <th>% de aprobación</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="exams-table-body"></tbody>
+        </table>
+        </div>
+
+        <div id="questions-builder-section" class="questions-builder">
+            <h2 class="section-label">Preguntas y respuestas del examen</h2>
+            <p id="selected-exam-label" class="lead-muted"></p>
+
+            <div class="builder-grid">
+            <aside class="lavender-panel questions-sidebar">
+                <h3 id="questions-count-heading" class="panel-subtitle">Preguntas (0)</h3>
+                <div id="questions-list-container" class="question-cards-stack"></div>
+                <button type="button" id="new-question-btn" class="btn-purple btn-block">+ Nueva pregunta</button>
+            </aside>
+
+            <div class="lavender-panel question-editor-panel">
+                <h3 id="question-editor-heading" class="panel-subtitle">Nueva pregunta</h3>
+                <form id="question-editor-form" class="editor-stack">
+                <div class="field-group">
+                    <label for="question-text">Enunciado</label>
+                    <textarea id="question-text" name="text" rows="2" placeholder="Escribe el enunciado de la pregunta" required></textarea>
+                </div>
+
+                <div class="options-header">
+                    <span>Respuestas</span>
+                    <span class="helper-inline">Marca solo una como correcta; al elegir otra, se desmarca la anterior.</span>
+                    <span class="pill-correct-hint">Solo 1 correcta</span>
+                </div>
+
+                <div id="question-options-list" class="options-stack"></div>
+
+                <div class="editor-footer-actions">
+                    <button type="submit" class="btn-purple">Guardar pregunta</button>
+                    <button type="button" id="cancel-question-btn" class="btn-outline-purple">Cancelar</button>
+                    <button type="button" id="add-option-btn" class="btn-outline-purple">+ Agregar respuesta</button>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        </div>
+    </section>
+</main>
+
+<script type="module" src="./JS/app.js"></script>
+</body>
+</html>
+
+
